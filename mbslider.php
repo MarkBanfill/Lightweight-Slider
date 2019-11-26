@@ -16,12 +16,12 @@ add_action('wp_print_scripts', 'mbslider_register_scripts');
 add_action('wp_print_styles', 'mbslider_register_styles');
 function mbslider_register_scripts() {
   if (!is_admin()) {
-    wp_register_script('mbslider_script', plugins_url('mb-slider.js', __FILE__));
+    wp_register_script('mbslider_script', plugins_url('mbslider.js', __FILE__));
     wp_enqueue_script('mbslider_script');
   }
 }
 function mbslider_register_styles() {
-  wp_register_style('mbslider_styles', plugins_url('mb-slider.css', __FILE__));
+  wp_register_style('mbslider_styles', plugins_url('mbslider.css', __FILE__));
   wp_enqueue_style('mbslider_styles');
 }
 
