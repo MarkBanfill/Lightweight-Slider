@@ -187,7 +187,7 @@ add_shortcode('mbslider-shortcode', 'mbslider_function');
 function mbslider_function($type='mbslider_function') {
   $args = array(
     'post_type' => 'mbslider',
-    'posts_per_page' => 5
+    'posts_per_page' => -1
   );
   $my_options = get_option('mbslider_option_name');
   $result .= '<div class="mbslider-wrapper">';
@@ -202,6 +202,24 @@ function mbslider_function($type='mbslider_function') {
 
   //the loop
   $loop = new WP_Query($args);
+  $currpostno = 0;
+  while ($loop->have_posts()) {
+    $currpostno++;
+    $loop->the_post();
+
+    $the_src = wp_get_attachment_image_src(get_post_thumbnail_id($post->ID), $type);
+    $the_srcset = wp_get_attachment_image_srcset(get_post_thumbnail_id($post->ID), $type);
+    if($currpostno > 1) {
+      $result .='<figure><img src="' . $the_src[0] . '" srcset="' . $the_srcset . '" data-thumb="' . $the_src[0] . '" alt=""/><figcaption>'.get_the_title().'</figcaption></figure>';
+    }
+  }
+
+  // add first post to end (shown by default in html)
+  $args = array(
+    'post_type' => 'mbslider',
+    'showposts' => 1
+  );
+  $loop = new WP_Query($args);
   while ($loop->have_posts()) {
     $loop->the_post();
 
@@ -209,9 +227,10 @@ function mbslider_function($type='mbslider_function') {
     $the_srcset = wp_get_attachment_image_srcset(get_post_thumbnail_id($post->ID), $type);
     $result .='<figure><img src="' . $the_src[0] . '" srcset="' . $the_srcset . '" data-thumb="' . $the_src[0] . '" alt=""/><figcaption>'.get_the_title().'</figcaption></figure>';
   }
+
   $result .= '</div>';
-  $result .='</div>';
-  $result .='<p>This is a test paragraph after the slideshow</p>';
+  $result .= '</div>';
+  $result .= '<p>This is a test paragraph after the slideshow</p>';
   return $result;
 
 }
