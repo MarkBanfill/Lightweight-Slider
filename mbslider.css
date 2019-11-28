@@ -1,7 +1,6 @@
 .mbslider-wrapper {
   overflow: hidden;
   background-color: #ccc;
-  width: 50%;
   position: relative;
 }
 .mbslider {
@@ -12,22 +11,6 @@
   top: 0;
   left: 0;
   width: 100%;
-}
-@keyframes slidefade {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-@keyframes slideswipe {
-  0% {
-    left: 100%;
-  }
-  100% {
-    left: 0%;
-  }
 }
 .mbslider > figure figcaption, .mbslider_prev, .mbslider_next {
   font-size: 3rem;
@@ -42,14 +25,19 @@
   margin-top: 2%;
   color: #fff;
   background-color: rgb(0,0,0,0.6);
-  animation: fadeleft 2s;
+  animation: caption 2s;
 }
-@keyframes fadeleft {
+@keyframes caption {
   0% {
     left: 50%;
+    opacity: 0;
+  }
+  30% {
+    opacity: 0;
   }
   100% {
     left: 2%;
+    opacity: 1;
   }
 }
 .mbslider_prev, .mbslider_next {
@@ -67,4 +55,20 @@
 }
 .mbslider_prev:hover, .mbslider_next:hover {
   color: #eee;
+}
+@keyframes slidefade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes slideswipe {
+  0% {
+    left: 100%;
+  }
+  100% {
+    left: 0%;
+  }
 }

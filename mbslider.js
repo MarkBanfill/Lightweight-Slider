@@ -4,25 +4,27 @@ jQuery(document).ready(function($) {
 
   // Set delay from data-delay attribute injected into html by mb-slider.php
   var delay = $(".mbslider").data("delay");
+  var animation = $(".mbslider").data("animation");
+  var transition = $(".mbslider").data("transition");
   var interval;
-  interval = setInterval(showNextSlide, delay*1000);
+  if (delay > 0) { interval = setInterval(showNextSlide, delay*1000); }
 
   function showNextSlide() {
-    $('.mbslider figure').first().css('animation','slideswipe 1s').next().show().end().appendTo('.mbslider');
+    $('.mbslider figure').first().css('animation','slide' + animation + ' ' + transition + 's').next().show().end().appendTo('.mbslider');
   };
 
   function showPrevSlide() {
-    $('.mbslider figure').last().prev().css('animation','slideswipe 1s');
+    $('.mbslider figure').last().prev().css('animation','slide' + animation + ' ' + transition +'s');
     $('.mbslider figure').last().prev().appendTo('.mbslider');
     setTimeout(function() {
       $('.mbslider figure').last().prev().prependTo('.mbslider');
-    }, 1000);
+    }, transition * 1000);
   };
 
   $(".mbslider_next").click(function slideNext() {
     clearInterval(interval);
     showNextSlide();
-    interval = setInterval(showNextSlide, delay*1000);
+    if (delay > 0) { interval = setInterval(showNextSlide, delay*1000); }
   });
 
   $(".mbslider_prev").click(function slidePrev() {
@@ -32,13 +34,13 @@ jQuery(document).ready(function($) {
       $prevbtn.addClass('disabled');
       setTimeout(function() {
         $prevbtn.removeClass('disabled');
-      }, 1000);
+      }, transition * 1000);
     } else {
       return false;
     }
     clearInterval(interval);
     showPrevSlide();
-    interval = setInterval(showNextSlide, delay*1000);
+    if (delay > 0) { interval = setInterval(showNextSlide, delay*1000); }
   });
 
 });
