@@ -6,28 +6,43 @@
 .mbslider {
   position: relative;
 }
-.mbslider > figure {
+.mbslider > div {
   position: absolute;
   top: 0;
-  left: 0;
   width: 100%;
+  height: 100%;
 }
-.mbslider > figure figcaption, .mbslider_prev, .mbslider_next {
+.mbslider figure {
+  height: 100%;
+}
+.mbslider p, .mbslider_prev, .mbslider_next {
   font-size: 3rem;
 }
-.mbslider > figure figcaption {
+.mbslider figcaption, .mbslider p {
   position: absolute;
   width: fit-content;
   padding: 0 1rem;
   height: auto;
+  color: #fff;
+  background-color: rgb(0,0,0,0.6);
+}
+.mbslider p {
   top: 0;
   left: 2%;
   margin-top: 2%;
-  color: #fff;
-  background-color: rgb(0,0,0,0.6);
+  animation: paragraph 2s;
+}
+.mbslider figcaption {
+  font-size: 2rem;
+  bottom: 0;
+  left: 0;
+  padding: 2rem;
+  margin: 0;
+  width: 100%;
+  text-align: center;
   animation: caption 2s;
 }
-@keyframes caption {
+@keyframes paragraph {
   0% {
     left: 50%;
     opacity: 0;
@@ -40,22 +55,67 @@
     opacity: 1;
   }
 }
+@keyframes caption {
+  0% {
+    bottom: -50%;
+    opacity: 0;
+  }
+  30% {
+    opacity: 0;
+  }
+  100% {
+    bottom: 0;
+    opacity: 1;
+  }
+}
 .mbslider_prev, .mbslider_next {
   position: absolute;
-  top: 50%;
+  top: calc(50% - 1.5rem);
   z-index: 1;
   color: #eee;
-  padding: 0 0 0.5rem;
 }
 .mbslider_prev {
   left: 2%;
+  text-shadow: 1px 1px 1px #333;
 }
 .mbslider_next {
   right: 2%;
+  text-shadow: -1px 1px 1px #333;
 }
 .mbslider_prev:hover, .mbslider_next:hover {
   color: #eee;
 }
+.mbslider-wrapper .pagination {
+  position: absolute;
+  font-size: 1rem;
+  top: 2%;
+  right: 2%;
+}
+.mbslider-wrapper .pagination div {
+  display: inline-block;
+  padding: 15px 5px;
+  position: relative;
+  width: 46px;
+  height: 32px;
+  cursor: pointer;
+  text-indent: -999em;
+  z-index: 1;
+}
+.mbslider-wrapper .pagination div::before {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 15px;
+  left: 5px;
+  width: 36px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.5);
+  transition: background 0.2s ease;
+}
+.mbslider-wrapper .pagination div.active::before {
+  background: rgba(255, 255, 255, 1);
+}
+
 @keyframes slidefade {
   0% {
     opacity: 0;
@@ -64,7 +124,15 @@
     opacity: 1;
   }
 }
-@keyframes slideswipe {
+@keyframes slideleft {
+  0% {
+    right: 100%;
+  }
+  100% {
+    right: 0%;
+  }
+}
+@keyframes slideright {
   0% {
     left: 100%;
   }

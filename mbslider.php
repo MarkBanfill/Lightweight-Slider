@@ -28,18 +28,98 @@ function mbslider_register_styles() {
 
 // Setup custom post type
 function mbslider_setup_post_type() {
+  $labels = array(
+    'name' => _x( 'MBslider', 'post type general name' ),
+    'singular_name' => _x( 'Slide', 'post type singular name' ),
+    'add_new' => _x( 'Add New', 'Slide' ),
+    'add_new_item' => __( 'Add New Slide' ),
+    'edit_item' => __( 'Edit Slide' ),
+    'new_item' => __( 'New Slide' ),
+    'all_items' => __( 'All Slides' ),
+    'view_item' => __( 'View Slide' ),
+    'search_items' => __( 'Search slides' ),
+    'not_found' => __( 'No slides found' ),
+    'not_found_in_trash' => __( 'No slides found in the Trash' ),
+    'parent_item_colon' => '',
+    'menu_name' => 'MBslider'
+  );
   $args = array(
     'public' => true,
-    'label' => 'MBslider',
+    'labels' => $labels,
+    'menu_position' => 4,
     'supports' => array(
       'title',
-      'editor',
       'thumbnail'
     )
   );
   register_post_type('mbslider', $args);
 }
 add_action('init', 'mbslider_setup_post_type');
+
+
+// Add slide_caption and slide_link custom fields to custom post type
+add_action("admin_init", "admin_init");
+
+function admin_init(){
+  add_meta_box("slide_caption-meta", "Slide Caption", "slide_caption", "mbslider", "normal", "low");
+  add_meta_box("slide_link-meta", "Slide Link", "slide_link", "mbslider", "normal", "low");
+}
+function slide_caption(){
+  global $post;
+  $custom = get_post_custom($post->ID);
+  $slide_caption = $custom["slide_caption"][0];
+  ?>
+  <label>Text</label>
+  <input name="slide_caption" value="<?php echo $slide_caption; ?>" />
+  <?php
+}
+function slide_link(){
+  global $post;
+  $custom = get_post_custom($post->ID);
+  $slide_link = $custom["slide_link"][0];
+  ?>
+  <label>URL</label>
+  <input name="slide_link" value="<?php echo $slide_link; ?>" />
+  <?php
+}
+
+add_action('save_post', 'save_details');
+
+function save_details(){
+  global $post;
+  update_post_meta($post->ID, "slide_caption", $_POST["slide_caption"]);
+  update_post_meta($post->ID, "slide_link", $_POST["slide_link"]);
+}
+
+
+// Override post columns (to add the custom fields)
+add_action("manage_posts_custom_column",  "mbslider_custom_columns");
+add_filter("manage_edit-mbslider_columns", "mbslider_edit_columns");
+
+function mbslider_edit_columns($columns){
+  $columns = array(
+    "cb" => "<input type='checkbox' />",
+    "title" => "Slide Title",
+    "slide_caption" => "Slide Caption",
+    "slide_link" => "Slide Link",
+    "date" => "Date"
+  );
+  return $columns;
+}
+function mbslider_custom_columns($column){
+  global $post;
+
+  switch ($column) {
+    case "slide_caption":
+    $custom = get_post_custom();
+    echo $custom["slide_caption"][0];
+    break;
+    case "slide_link":
+    $custom = get_post_custom();
+    echo $custom["slide_link"][0];
+    break;
+  }
+}
 
 
 // Create settings page
@@ -134,6 +214,14 @@ class MySettingsPage
       'setting_section_id',
       array('Activate this setting to display navigation controls.')
     );
+    add_settings_field(
+      'pagination',
+      'Show pagination',
+      array( $this, 'pagination_callback' ),
+      'my-setting-admin',
+      'setting_section_id',
+      array('Activate this setting to display pagination.')
+    );
     register_setting(
       'mbslider_option_group',
       'mbslider_option_name',
@@ -146,6 +234,10 @@ class MySettingsPage
     register_setting(
       'mbslider_option_group',
       'controls'
+    );
+    register_setting(
+      'mbslider_option_group',
+      'pagination'
     );
   }
 
@@ -207,9 +299,9 @@ class MySettingsPage
     $options = get_option('animation');
     ?>
     <select name='animation[animation]'>
-        <option value='fade' <?php selected( $options['animation'], 'fade' ); ?>>Fade</option>
-        <option value='swipe' <?php selected( $options['animation'], 'swipe' ); ?>>Swipe</option>
-        <option value='none' <?php selected( $options['animation'], 'none' ); ?>>None</option>
+      <option value='fade' <?php selected( $options['animation'], 'fade' ); ?>>Fade</option>
+      <option value='slide' <?php selected( $options['animation'], 'slide' ); ?>>Slide</option>
+      <option value='none' <?php selected( $options['animation'], 'none' ); ?>>None</option>
     </select>
     <?php
   }
@@ -217,6 +309,12 @@ class MySettingsPage
   {
     $html = '<input type="checkbox" id="controls" name="controls" value="1" ' . checked(1, get_option('controls'), false) . '/>';
     $html .= '<label for="controls"> '  . $args[0] . '</label>';
+    echo $html;
+  }
+  public function pagination_callback($args)
+  {
+    $html = '<input type="checkbox" id="pagination" name="pagination" value="1" ' . checked(1, get_option('pagination'), false) . '/>';
+    $html .= '<label for="pagination"> '  . $args[0] . '</label>';
     echo $html;
   }
 
@@ -248,38 +346,85 @@ function mbslider_function($type='mbslider_function') {
   $result .= '<div id="mbslider" class="mbslider" data-delay="' . $my_options['delay'] . '" data-transition="' . $my_options['transition'] . '" data-animation="' . $animtype['animation'] . '" style="padding-bottom:' . $my_options['slide_height'] . '%;">';
 
   // Add slides from mbslider posts
-  $loop = new WP_Query($args);
-  $currpostno = 0;
-  while ($loop->have_posts()) {
-    $currpostno++;
-    $loop->the_post();
+  function ouput_posts(&$result, $args, $includeposts) {
+    $loop = new WP_Query($args);
+    while ($loop->have_posts()) {
+      $currpostno++;
+      $loop->the_post();
 
-    $the_src = wp_get_attachment_image_src(get_post_thumbnail_id($post->ID), $type);
-    $the_srcset = wp_get_attachment_image_srcset(get_post_thumbnail_id($post->ID), $type);
-    if($currpostno > 1) {
-      $result .='<figure><img src="' . $the_src[0] . '" srcset="' . $the_srcset . '" data-thumb="' . $the_src[0] . '" alt=""/><figcaption>'.get_the_content().'</figcaption></figure>';
+      $the_src = wp_get_attachment_image_src(get_post_thumbnail_id($post->ID), $type);
+      $the_srcset = wp_get_attachment_image_srcset(get_post_thumbnail_id($post->ID), $type);
+      $the_caption = get_post_custom_values('slide_caption', $post->ID);
+      $the_link = get_post_custom_values('slide_link', $post->ID);
+      if($includeposts == 'SkipFirst' && $currpostno == 1) {
+        // Skip first post if required
+      } else {
+        $result .= '<div><figure><p>' . get_the_title() . '</p>';
+        $trimlink = trim($the_link[0]);
+        if(isset($trimlink) === true && $trimlink === '') {
+          // If no link, don't add one
+        } else {
+          $result .= '<a href="' . $trimlink . '">';
+        };
+        $result .= '<img src="' . $the_src[0] . '" srcset="' . $the_srcset . '" data-thumb="' . $the_src[0] . '" alt=""/>';
+        if(isset($trimlink) === true && $trimlink === '') {
+          // If no link, don't add one
+        } else {
+          $result .= '</a>';
+        };
+        $result .= '<figcaption>' . $the_caption[0] . '</figcaption></figure></div>';
+      }
     }
   }
+  ouput_posts($result, $args, 'SkipFirst');
 
   // Add first post to end (shown by default in html)
   $args = array(
     'post_type' => 'mbslider',
     'showposts' => 1
   );
-  $loop = new WP_Query($args);
-  while ($loop->have_posts()) {
-    $loop->the_post();
-
-    $the_src = wp_get_attachment_image_src(get_post_thumbnail_id($post->ID), $type);
-    $the_srcset = wp_get_attachment_image_srcset(get_post_thumbnail_id($post->ID), $type);
-    $result .='<figure><img src="' . $the_src[0] . '" srcset="' . $the_srcset . '" data-thumb="' . $the_src[0] . '" alt=""/><figcaption>'.get_the_content().'</figcaption></figure>';
-  }
+  ouput_posts($result, $args, 'OnlyFirst');
 
   $result .= '</div>';
+
+  // Add pagination if required
+  if ( get_option('pagination') ) {
+    $args = array(
+      'post_type' => 'mbslider',
+      'posts_per_page' => -1
+    );
+    $result .= '<div class="pagination">';
+    $loop = new WP_Query($args);
+    $currpostno = 0;
+    while ($loop->have_posts()) {
+      $currpostno++;
+      $loop->the_post();
+      if ($currpostno == 1) {
+        $result .= '<div class="active">' . $currpostno . '</div>';
+      } else {
+        $result .= '<div>' . $currpostno . '</div>';
+      }
+    }
+    $result .= '</div>';
+  };
+
   $result .= '</div>';
   $result .= '<p>This is a test paragraph after the slideshow</p>';
   return $result;
 
+}
+
+// Add custom CSS to plugin admin page
+add_action('admin_head', 'custom_admin_css');
+
+function custom_admin_css() {
+  echo '<style>
+  input[name="slide_caption"], input[name="slide_link"] {
+    width: 80%;
+    padding: 0.4em;
+    margin-left: 1em;
+  }
+  </style>';
 }
 
 ?>
