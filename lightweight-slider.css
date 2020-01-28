@@ -1,0 +1,180 @@
+/* Modify default max-width */
+body.template-full-width .entry-content > *:not(.alignwide):not(.alignfull):not(.alignleft):not(.alignright):not(.is-style-wide), body.template-full-width [class*="__inner-container"] > *:not(.alignwide):not(.alignfull):not(.alignleft):not(.alignright):not(.is-style-wide) {
+  max-width: 100rem;
+}
+.lightweight-slider-wrapper {
+  overflow: hidden;
+  background-color: #ccc;
+  position: relative;
+}
+.lightweight-slider {
+  position: relative;
+}
+.lightweight-slider > div {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  z-index: 0;
+}
+.lightweight-slider > div.active {
+  display: inline;
+}
+.lightweight-slider figure {
+  height: 100%;
+}
+.lightweight-slider figure img {
+  display: block;
+}
+.lightweight-slider p, .lightweight-slider-prev, .lightweight-slider-next {
+  font-size: 3vw;
+}
+.lightweight-slider figcaption, .lightweight-slider p {
+  position: absolute;
+  width: fit-content;
+  padding: 0 1rem;
+  height: auto;
+  color: #fff;
+  background-color: rgb(0,0,0,0.6);
+}
+.lightweight-slider p {
+  top: 0;
+  left: 2%;
+  margin-top: 2%;
+  animation: paragraph 2s;
+}
+.lightweight-slider figcaption {
+  font-size: 2vw;
+  bottom: 0;
+  left: 0;
+  padding: 2rem;
+  margin: 0;
+  width: 100%;
+  text-align: center;
+  animation: caption 2s;
+}
+.lightweight-slider-prev, .lightweight-slider-next {
+  position: absolute;
+  top: calc(50% - 1.5rem);
+  z-index: 1;
+  color: #eee;
+  z-index: 2;
+  text-decoration: none;
+}
+.lightweight-slider-prev {
+  left: 2%;
+  text-shadow: 1px 1px 1px #333;
+}
+.lightweight-slider-next {
+  right: 2%;
+  text-shadow: -1px 1px 1px #333;
+}
+.lightweight-slider-prev:hover, .lightweight-slider-next:hover {
+  color: #eee;
+}
+.lightweight-slider-wrapper .pagination {
+  position: absolute;
+  font-size: 1rem;
+  top: 2%;
+  right: calc(2% - 0.3vw);
+}
+.lightweight-slider-wrapper .pagination div {
+  display: inline-block;
+  position: relative;
+  width: 2.6vw;
+  height: 32px;
+  cursor: pointer;
+  text-indent: -999em;
+  z-index: 1;
+}
+.lightweight-slider-wrapper .pagination div::before {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 15px;
+  left: 0.3vw;
+  width: 2vw;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.5);
+  transition: background 0.2s ease;
+}
+.lightweight-slider-wrapper .pagination div.active::before {
+  background: rgba(255, 255, 255, 1);
+}
+
+@keyframes paragraph {
+  0% {
+    left: 50%;
+    opacity: 0;
+  }
+  30% {
+    opacity: 0;
+  }
+  100% {
+    left: 2%;
+    opacity: 1;
+  }
+}
+@keyframes caption {
+  0% {
+    bottom: -50%;
+    opacity: 0;
+  }
+  30% {
+    opacity: 0;
+  }
+  100% {
+    bottom: 0;
+    opacity: 1;
+  }
+}
+@keyframes slidefade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes slideleft {
+  0% {
+    right: 100%;
+  }
+  100% {
+    right: 0%;
+  }
+}
+@keyframes slideright {
+  0% {
+    left: 100%;
+  }
+  100% {
+    left: 0%;
+  }
+}
+
+@media only screen and (min-width:768px) {
+  .lightweight-slider p, .lightweight-slider-prev, .lightweight-slider-next {
+    font-size: 2.5vw;
+  }
+  .lightweight-slider figcaption {
+    font-size: 1.75vw;
+  }
+}
+@media only screen and (min-width:1280px) {
+  .lightweight-slider p, .lightweight-slider-prev, .lightweight-slider-next {
+    font-size: 2vw;
+  }
+  .lightweight-slider figcaption {
+    font-size: 1.5vw;
+  }
+}
+@media only screen and (min-width:1600px) {
+  .lightweight-slider p, .lightweight-slider-prev, .lightweight-slider-next {
+    font-size: 1.5vw;
+  }
+  .lightweight-slider figcaption {
+    font-size: 1.2vw;
+  }
+}
