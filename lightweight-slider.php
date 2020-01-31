@@ -71,7 +71,7 @@ function lws_slide_caption(){
   $lws_slide_caption = $lws_custom['slide_caption'][0];
   ?>
   <label>Text</label>
-  <input name='slide_caption' value='<?php echo $lws_slide_caption; ?>' />
+  <input type="text" maxlength="500" name="slide_caption" value="<?php echo esc_html($lws_slide_caption); ?>" />
   <?php
 }
 function lws_slide_link(){
@@ -80,7 +80,7 @@ function lws_slide_link(){
   $lws_slide_link = $lws_custom['slide_link'][0];
   ?>
   <label>URL</label>
-  <input name='slide_link' value='<?php echo $lws_slide_link; ?>' />
+  <input type="url" pattern="https?://.+" name="slide_link" value="<?php echo esc_url($lws_slide_link); ?>" />
   <?php
 }
 
@@ -96,7 +96,7 @@ function lws_save_details(){
 
 
 // Override post columns (to add the custom fields)
-add_action('manage_posts_custom_column',  'lws_custom_columns');
+add_action('manage_posts_custom_column', 'lws_custom_columns');
 add_filter('manage_edit-lightweight-slider_columns', 'lws_edit_columns');
 
 function lws_edit_columns($lws_columns){
@@ -287,18 +287,19 @@ class LightWeightSliderSettingsPage
   // Create an input for each setting
   public function lws_slide_height_callback()
   {
-    $html = '<input type="text" id="slide_height" name="lws_slide_height" value="' . get_option('lws_slide_height') . '" />';
+    $html = '<input type="number" min="1" max="100" required id="slide_height" name="lws_slide_height" value="' . esc_html(get_option('lws_slide_height')) . '" />';
     echo $html;
   }
   public function lws_delay_callback()
   {
-    $html = '<input type="text" id="delay" name="lws_delay" value="' . get_option('lws_delay') . '" />';
+    $html = '<input type="number" min="0" max="600" required id="delay" name="lws_delay" value="' . esc_html(get_option('lws_delay')) . '" />';
     $html .= ' <- To disable autoplay set delay to 0';
     echo $html;
   }
   public function lws_transition_callback()
   {
-    $html = '<input type="text" id="transition" name="lws_transition" value="' . get_option('lws_transition') . '" />';
+    $html = '<input type="number" min="1" max="600" required id="transition" name="lws_transition" value="' . esc_html(get_option('lws_transition')) . '" />';
+    $html .= ' <- Must be less than the delay value';
     echo $html;
   }
   public function lws_animation_callback()
@@ -348,7 +349,7 @@ function lightweight_slider_function($type='lightweight_slider_function') {
     $result .= '<a href="#" class="lightweight-slider-prev">&#10092</a>';
   };
 
-  $result .= '<div id="lightweight-slider" class="lightweight-slider" data-delay="' . get_option('lws_delay') . '" data-transition="' . get_option('lws_transition') . '" data-animation="' . get_option('lws_animation') . '" style="padding-bottom:' . get_option('lws_slide_height') . '%;">';
+  $result .= '<div id="lightweight-slider" class="lightweight-slider" data-delay="' . esc_html(get_option('lws_delay')) . '" data-transition="' . esc_html(get_option('lws_transition')) . '" data-animation="' . esc_html(get_option('lws_animation')) . '" style="padding-bottom:' . esc_html(get_option('lws_slide_height')) . '%;">';
   lws_ouput_posts($result, $args);
   $result .= '</div>';
 
@@ -393,15 +394,15 @@ function lws_ouput_posts(&$result, $args) {
     $the_caption = get_post_custom_values('slide_caption', $post->ID);
     $the_link = get_post_custom_values('slide_link', $post->ID);
     if($currpostno == 1) {
-      $result .= '<div class="active"><figure><p>' . get_the_title() . '</p>';
+      $result .= '<div class="active"><figure><p>' . esc_html(get_the_title()) . '</p>';
     } else {
-      $result .= '<div class=""><figure><p>' . get_the_title() . '</p>';
+      $result .= '<div class=""><figure><p>' . esc_html(get_the_title()) . '</p>';
     };
     $trimlink = trim($the_link[0]);
     if(isset($trimlink) === true && $trimlink === '') {
       // If no link, don't add one
     } else {
-      $result .= '<a href="' . $trimlink . '">';
+      $result .= '<a href="' . esc_url($trimlink) . '">';
     };
     $result .= '<img src="' . $the_src[0] . '" srcset="' . $the_srcset . '" data-thumb="' . $the_src[0] . '" alt=""/>';
     if(isset($trimlink) === true && $trimlink === '') {
